@@ -33,12 +33,17 @@ export class PriceTableService {
   ): Promise<PriceTableProductEntity[]> {
     try {
       const rows = (await this.db.cache(
-        `SELECT codProduto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId}`,
-      )) as Array<{ codProduto: number; precoTabela: number }>;
+        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId}`,
+      )) as Array<{
+        codProduto: number;
+        produto: string;
+        precoTabela: number;
+      }>;
 
       return rows.map((row) => ({
         priceTableId,
         productId: row.codProduto,
+        name: row.produto,
         price: row.precoTabela / 100000,
       }));
     } catch (error) {
@@ -54,8 +59,12 @@ export class PriceTableService {
   ): Promise<PriceTableProductEntity> {
     try {
       const rows = (await this.db.cache(
-        `SELECT codProduto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId} AND codProduto=${productId}`,
-      )) as Array<{ codProduto: number; precoTabela: number }>;
+        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId} AND codProduto=${productId}`,
+      )) as Array<{
+        codProduto: number;
+        produto: string;
+        precoTabela: number;
+      }>;
 
       if (!rows.length) {
         throw new NotFoundException('Price table product not found.');
@@ -64,6 +73,7 @@ export class PriceTableService {
       return {
         priceTableId,
         productId: rows[0].codProduto,
+        name: rows[0].produto,
         price: rows[0].precoTabela / 100000,
       };
     } catch (error) {

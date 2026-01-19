@@ -51,22 +51,22 @@ describe('PriceTableService', () => {
 
   it('builds SQL for getPriceTableProducts', async () => {
     dbServiceMock.cache.mockResolvedValueOnce([
-      { codProduto: 11, precoTabela: 1999900 },
+      { codProduto: 11, produto: 'Produto 11', precoTabela: 1999900 },
     ]);
 
     const result = await service.getPriceTableProducts(1, 105);
 
     expect(result).toEqual([
-      { priceTableId: 105, productId: 11, price: 19.999 },
+      { priceTableId: 105, productId: 11, name: 'Produto 11', price: 19.999 },
     ]);
     expect(dbService.cache).toHaveBeenCalledWith(
-      'SELECT codProduto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=1 AND codTabela=105',
+      'SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=1 AND codTabela=105',
     );
   });
 
   it('builds SQL for getPriceTableProduct', async () => {
     dbServiceMock.cache.mockResolvedValueOnce([
-      { codProduto: 11, precoTabela: 1234500 },
+      { codProduto: 11, produto: 'Produto 11', precoTabela: 1234500 },
     ]);
 
     const result = await service.getPriceTableProduct(1, 105, 11);
@@ -74,10 +74,11 @@ describe('PriceTableService', () => {
     expect(result).toEqual({
       priceTableId: 105,
       productId: 11,
+      name: 'Produto 11',
       price: 12.345,
     });
     expect(dbService.cache).toHaveBeenCalledWith(
-      'SELECT codProduto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=1 AND codTabela=105 AND codProduto=11',
+      'SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=1 AND codTabela=105 AND codProduto=11',
     );
   });
 

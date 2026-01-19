@@ -56,7 +56,12 @@ describe('PriceTableController', () => {
   });
 
   it('delegates getPriceTableProduct to service', async () => {
-    const payload = { priceTableId: 105, productId: 11, price: 9.99 };
+    const payload = {
+      priceTableId: 105,
+      productId: 11,
+      name: 'Produto 11',
+      price: 9.99,
+    };
     priceTableServiceMock.getPriceTableProduct.mockResolvedValueOnce(payload);
 
     const result = await controller.getPriceTableProduct(1, 105, 11);
