@@ -59,7 +59,7 @@ export class PriceTableService {
   ): Promise<PriceTableProductEntity> {
     try {
       const rows = (await this.db.cache(
-        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId} AND codProduto=${productId}`,
+        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId} AND codProduto=${productId} AND precoTabela!=0`,
       )) as Array<{
         codProduto: number;
         produto: string;
