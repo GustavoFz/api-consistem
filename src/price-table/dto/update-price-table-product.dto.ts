@@ -1,6 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdatePriceTableProductDto {
-  @ApiProperty({ example: 199.99 })
-  price: number;
+  @ApiPropertyOptional({ example: 199.99 })
+  price?: number;
+
+  @ApiPropertyOptional({ example: 199.99 })
+  precoTabela?: number;
 }

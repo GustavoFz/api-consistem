@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseFloatPipe,
   ParseIntPipe,
   Patch,
   Query,
@@ -79,8 +78,18 @@ export class PriceTableController {
     @Query('companyId', ParseIntPipe) companyId: number,
     @Param('priceTableId', ParseIntPipe) priceTableId: number,
     @Param('productId', ParseIntPipe) productId: number,
-    @Body('price', ParseFloatPipe) price: number,
+    @Body() body: UpdatePriceTableProductDto,
   ): Promise<PriceTableProductEntity> {
+    const rawPrice = body.price ?? body.precoTabela;
+    if (rawPrice === undefined) {
+      throw new BadRequestException('Price is required.');
+    }
+
+    const price = Number(rawPrice);
+    if (Number.isNaN(price)) {
+      throw new BadRequestException('Price must be a numeric value.');
+    }
+
     if (price <= 0) {
       throw new BadRequestException('Price must be a positive number.');
     }

@@ -81,18 +81,27 @@ describe('PriceTableController', () => {
 
   it('throws when updating with non-positive price', async () => {
     await expect(
-      controller.updatePriceTableProduct(1, 105, 11, 0),
+      controller.updatePriceTableProduct(1, 105, 11, { price: 0 }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(service.updatePriceTableProduct).not.toHaveBeenCalled();
   });
 
   it('delegates updatePriceTableProduct to service', async () => {
     const payload = { priceTableId: 105, productId: 11, price: 9.99 };
-    priceTableServiceMock.updatePriceTableProduct.mockResolvedValueOnce(payload);
+    priceTableServiceMock.updatePriceTableProduct.mockResolvedValueOnce(
+      payload,
+    );
 
-    const result = await controller.updatePriceTableProduct(1, 105, 11, 9.99);
+    const result = await controller.updatePriceTableProduct(1, 105, 11, {
+      precoTabela: 9.99,
+    });
 
     expect(result).toEqual(payload);
-    expect(service.updatePriceTableProduct).toHaveBeenCalledWith(1, 105, 11, 9.99);
+    expect(service.updatePriceTableProduct).toHaveBeenCalledWith(
+      1,
+      105,
+      11,
+      9.99,
+    );
   });
 });
