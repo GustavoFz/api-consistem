@@ -16,23 +16,26 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { PriceTableService } from './price-table.service';
+import { ValidatorStatus } from '../validator-status.pipe';
 import { UpdatePriceTableProductDto } from './dto/update-price-table-product.dto';
-import { PriceTableEntity } from './entities/price-table.entity';
 import { PriceTableProductEntity } from './entities/price-table-product.entity';
+import { PriceTableEntity } from './entities/price-table.entity';
+import { PriceTableService } from './price-table.service';
 
 @ApiTags('Price Tables')
 @Controller('price-tables')
 export class PriceTableController {
-  constructor(private readonly priceTableService: PriceTableService) {}
+  constructor(private readonly priceTableService: PriceTableService) { }
 
   @Get()
   @ApiQuery({ name: 'companyId', type: Number, required: true })
+  @ApiQuery({ name: 'status', type: Number, required: false })
   @ApiResponse({ status: 200, type: [PriceTableEntity] })
   async getPriceTables(
     @Query('companyId', ParseIntPipe) companyId: number,
+    @Query('status', new ValidatorStatus()) status?: number,
   ): Promise<PriceTableEntity[]> {
-    return this.priceTableService.getPriceTables(companyId);
+    return this.priceTableService.getPriceTables(companyId, status);
   }
 
   @Get(':priceTableId/products')

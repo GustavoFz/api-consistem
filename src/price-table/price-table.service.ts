@@ -11,10 +11,19 @@ import { PriceTableEntity } from './entities/price-table.entity';
 export class PriceTableService {
   constructor(private db: DbService) { }
 
-  async getPriceTables(companyId: number): Promise<PriceTableEntity[]> {
+  async getPriceTables(
+    companyId: number,
+    status?: number,
+  ): Promise<PriceTableEntity[]> {
     try {
+      const filters = [`codEmpresa=${companyId}`];
+      if (status !== undefined) {
+        filters.push(`situacao=${status}`);
+      }
+
+      const whereClause = filters.join(' AND ');
       const rows = (await this.db.cache(
-        `SELECT codTabela, descricao FROM Ped.TabelaPreco WHERE codEmpresa=${companyId} AND situacao=1`,
+        `SELECT codTabela, descricao FROM Ped.TabelaPreco WHERE ${whereClause}`,
       )) as Array<{ codTabela: number; descricao: string }>;
 
       return rows.map((row) => ({

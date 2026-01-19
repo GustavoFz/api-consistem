@@ -34,7 +34,7 @@ describe('PriceTableService', () => {
     expect(service).toBeDefined();
   });
 
-  it('builds SQL for getPriceTables', async () => {
+  it('builds SQL for getPriceTables without status', async () => {
     dbServiceMock.cache.mockResolvedValueOnce([
       { codTabela: 105, descricao: 'Tabela padrao' },
     ]);
@@ -45,7 +45,22 @@ describe('PriceTableService', () => {
       { priceTableId: 105, description: 'Tabela padrao' },
     ]);
     expect(dbService.cache).toHaveBeenCalledWith(
-      'SELECT codTabela, descricao FROM Ped.TabelaPreco WHERE codEmpresa=1 AND situacao=1',
+      'SELECT codTabela, descricao FROM Ped.TabelaPreco WHERE codEmpresa=1',
+    );
+  });
+
+  it('builds SQL for getPriceTables with status', async () => {
+    dbServiceMock.cache.mockResolvedValueOnce([
+      { codTabela: 105, descricao: 'Tabela padrao' },
+    ]);
+
+    const result = await service.getPriceTables(1, 0);
+
+    expect(result).toEqual([
+      { priceTableId: 105, description: 'Tabela padrao' },
+    ]);
+    expect(dbService.cache).toHaveBeenCalledWith(
+      'SELECT codTabela, descricao FROM Ped.TabelaPreco WHERE codEmpresa=1 AND situacao=0',
     );
   });
 

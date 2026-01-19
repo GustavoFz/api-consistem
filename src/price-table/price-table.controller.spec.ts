@@ -37,13 +37,22 @@ describe('PriceTableController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('delegates getPriceTables to service', async () => {
+  it('delegates getPriceTables to service without status', async () => {
     priceTableServiceMock.getPriceTables.mockResolvedValueOnce([]);
 
     const result = await controller.getPriceTables(1);
 
     expect(result).toEqual([]);
-    expect(service.getPriceTables).toHaveBeenCalledWith(1);
+    expect(service.getPriceTables).toHaveBeenCalledWith(1, undefined);
+  });
+
+  it('delegates getPriceTables to service with status', async () => {
+    priceTableServiceMock.getPriceTables.mockResolvedValueOnce([]);
+
+    const result = await controller.getPriceTables(1, 1);
+
+    expect(result).toEqual([]);
+    expect(service.getPriceTables).toHaveBeenCalledWith(1, 1);
   });
 
   it('delegates getPriceTableProducts to service', async () => {
