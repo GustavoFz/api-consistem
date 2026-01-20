@@ -12,8 +12,10 @@ async function bootstrap() {
     .setDescription('API documentation for Consistem integrations')
     .setVersion('1.0.0')
     .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, swaggerDocument);
+  const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, documentFactory, {
+    jsonDocumentUrl: '/api/docs-json',
+  });
 
   app.enableCors({
     origin: true,
@@ -21,6 +23,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(3000);
+  await app.listen(3311);
 }
 bootstrap();
