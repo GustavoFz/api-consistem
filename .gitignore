@@ -3,6 +3,7 @@
 /node_modules
 
 # Logs
+/logs
 logs
 *.log
 npm-debug.log*
@@ -38,6 +39,9 @@ lerna-debug.log*
 .env
 .env.development
 development.env
+
+# APP KEYS
+config/app-keys.json
 
 # ODBC CACHE
 /odbc-cache
