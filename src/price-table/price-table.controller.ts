@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -16,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidatorStatus } from '../validator-status.pipe';
+import { BatchUpdatePriceTableProductDto } from './dto/batch-update-price-table-product.dto';
 import { UpdatePriceTableProductDto } from './dto/update-price-table-product.dto';
 import { PriceTableProductEntity } from './entities/price-table-product.entity';
 import { PriceTableEntity } from './entities/price-table.entity';
@@ -99,6 +101,43 @@ export class PriceTableController {
       priceTableId,
       productId,
       price,
+    );
+  }
+
+  @Post(':priceTableId/products/batch')
+  @ApiQuery({ name: 'companyId', type: Number, required: true })
+  @ApiParam({ name: 'priceTableId', type: Number })
+  @ApiBody({ type: BatchUpdatePriceTableProductDto })
+  @ApiResponse({ status: 200, type: [PriceTableProductEntity] })
+  async batchUpdatePriceTableProducts(
+    @Query('companyId', ParseIntPipe) companyId: number,
+    @Param('priceTableId', ParseIntPipe) priceTableId: number,
+    @Body() body: BatchUpdatePriceTableProductDto,
+  ): Promise<PriceTableProductEntity[]> {
+    if (!body.updates || body.updates.length === 0) {
+      throw new BadRequestException('Updates array is required and cannot be empty.');
+    }
+
+    if (body.updates.length > 1000) {
+      throw new BadRequestException('Maximum 1000 items allowed per batch.');
+    }
+
+    // Validate each update item
+    for (const update of body.updates) {
+      if (update.productId === undefined || update.price === undefined) {
+        throw new BadRequestException('Each update must contain productId and price.');
+      }
+
+      const price = Number(update.price);
+      if (Number.isNaN(price) || price <= 0) {
+        throw new BadRequestException('Price must be a positive numeric value.');
+      }
+    }
+
+    return this.priceTableService.batchUpdatePriceTableProducts(
+      companyId,
+      priceTableId,
+      body.updates,
     );
   }
 }

@@ -8,12 +8,14 @@ import { AuthModule } from './auth/auth.module';
 
 import { DbModule } from './db/db.module';
 import { PriceTableModule } from './price-table/price-table.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     DbModule,
     PriceTableModule,
+    ProductsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({

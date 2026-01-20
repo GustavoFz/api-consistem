@@ -29,6 +29,43 @@ export class DbService {
     }
   }
 
+  async transaction<T>(queries: string[]): Promise<T[]> {
+    let connection: odbc.Connection | null = null;
+    try {
+      connection = await odbc.connect(this.odbcConfig);
+      
+      // Begin transaction
+      await connection.query('START TRANSACTION');
+      
+      const results: T[] = [];
+      for (const sql of queries) {
+        const result = await connection.query(sql);
+        results.push(result as T);
+      }
+      
+      // Commit transaction
+      await connection.query('COMMIT');
+      
+      return results;
+    } catch (error) {
+      // Rollback on error
+      if (connection) {
+        try {
+          await connection.query('ROLLBACK');
+        } catch (rollbackError) {
+          console.error('Rollback failed:', rollbackError);
+        }
+      }
+      
+      console.error('Transaction error:', error);
+      throw new InternalServerErrorException('Transaction failed');
+    } finally {
+      if (connection) {
+        await connection.close();
+      }
+    }
+  }
+
   async mysql(query, values) {
     const connection = await mysql.createConnection(this.dbConfig);
     await connection.query(query, values);

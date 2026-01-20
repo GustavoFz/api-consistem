@@ -117,4 +117,28 @@ export class PriceTableService {
       throw new InternalServerErrorException();
     }
   }
+
+  async batchUpdatePriceTableProducts(
+    companyId: number,
+    priceTableId: number,
+    updates: Array<{ productId: number; price: number }>,
+  ): Promise<PriceTableProductEntity[]> {
+    try {
+      const queries = updates.map(({ productId, price }) => {
+        const priceScaled = price * 100000;
+        return `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`;
+      });
+
+      await this.db.transaction(queries);
+
+      return updates.map(({ productId, price }) => ({
+        priceTableId,
+        productId,
+        price,
+      }));
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Batch update failed');
+    }
+  }
 }
