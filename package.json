@@ -28,6 +28,7 @@
     "@nestjs/schedule": "^4.0.0",
     "@nestjs/swagger": "^7.3.0",
     "date-fns": "^3.3.1",
+    "joi": "^18.0.2",
     "mysql2": "^3.7.1",
     "node-gyp": "^10.0.1",
     "odbc": "^2.4.8",
