@@ -104,7 +104,9 @@ export class PriceTableService {
     try {
       const priceScaled = price * 100000;
       await this.db.cache(
-        `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`,
+        // Corrigir - Criar nova rota para INSERT OR UPDATE e manter a rota atual para UPDATE
+        // `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`,
+        `INSERT OR UPDATE INTO Ped.TabelaPrecoItem (codEmpresa, codTabela, codProduto, codFaixa, precoTabela, GERINF) VALUES (${companyId}, ${priceTableId}, ${productId}, 1, ${priceScaled}, 1)`,
       );
 
       return {
@@ -126,7 +128,9 @@ export class PriceTableService {
     try {
       const queries = updates.map(({ productId, price }) => {
         const priceScaled = price * 100000;
-        return `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`;
+        // Corrigir - Criar nova rota para INSERT OR UPDATE e manter a rota atual para UPDATE
+        // return `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`;
+        return `INSERT OR UPDATE INTO Ped.TabelaPrecoItem (codEmpresa, codTabela, codProduto, codFaixa, precoTabela, GERINF) VALUES (${companyId}, ${priceTableId}, ${productId}, 1, ${priceScaled}, 1)`;
       });
 
       await this.db.transaction(queries);
