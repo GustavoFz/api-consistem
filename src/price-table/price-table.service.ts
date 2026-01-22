@@ -6,6 +6,7 @@ import {
 import { DbService } from '../db/db.service';
 import { PriceTableProductEntity } from './entities/price-table-product.entity';
 import { PriceTableEntity } from './entities/price-table.entity';
+import { PriceTableProductWithWeightEntity } from './entities/price-table-product-with-weight.entity';
 
 @Injectable()
 export class PriceTableService {
@@ -39,14 +40,33 @@ export class PriceTableService {
   async getPriceTableProducts(
     companyId: number,
     priceTableId: number,
-  ): Promise<PriceTableProductEntity[]> {
+  ): Promise<PriceTableProductWithWeightEntity[]> {
     try {
       const rows = (await this.db.cache(
-        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId}`,
+        `SELECT 
+              T.codProduto, 
+              T.produto, 
+              T.precoTabela, 
+              I.pesoLiquido
+        FROM 
+              Ped.TabelaPrecoItem AS T
+        INNER JOIN 
+              Cgi.ItemSaida AS I 
+        ON 
+            T.codEmpresa = I.codEmpresa 
+        AND 
+            T.codProduto = I.codItem
+        WHERE 
+            T.codEmpresa = ${companyId} 
+        AND 
+            T.codTabela = ${priceTableId} 
+        AND 
+            precoTabela!=0`,
       )) as Array<{
         codProduto: number;
         produto: string;
         precoTabela: number;
+        pesoLiquido: number;
       }>;
 
       return rows.map((row) => ({
@@ -54,6 +74,7 @@ export class PriceTableService {
         productId: row.codProduto,
         name: row.produto,
         price: row.precoTabela / 100000,
+        netWeight: row.pesoLiquido,
       }));
     } catch (error) {
       console.error(error);
@@ -65,14 +86,36 @@ export class PriceTableService {
     companyId: number,
     priceTableId: number,
     productId: number,
-  ): Promise<PriceTableProductEntity> {
+  ): Promise<PriceTableProductWithWeightEntity> {
     try {
       const rows = (await this.db.cache(
-        `SELECT codProduto, produto, precoTabela FROM Ped.TabelaPrecoItem WHERE codEmpresa=${companyId} AND codTabela=${priceTableId} AND codProduto=${productId} AND precoTabela!=0`,
+        `SELECT 
+              T.codProduto, 
+              T.produto, 
+              T.precoTabela, 
+              I.pesoLiquido
+        FROM 
+              Ped.TabelaPrecoItem AS T
+        INNER JOIN 
+              Cgi.ItemSaida AS I 
+        ON 
+            T.codEmpresa = I.codEmpresa 
+        AND 
+            T.codProduto = I.codItem
+        WHERE 
+            T.codEmpresa = ${companyId} 
+        AND 
+            T.codTabela = ${priceTableId} 
+        AND 
+            T.codProduto=${productId}
+        AND 
+            precoTabela!=0`,
+
       )) as Array<{
         codProduto: number;
         produto: string;
         precoTabela: number;
+        pesoLiquido: number;
       }>;
 
       if (!rows.length) {
@@ -84,6 +127,7 @@ export class PriceTableService {
         productId: rows[0].codProduto,
         name: rows[0].produto,
         price: rows[0].precoTabela / 100000,
+        netWeight: rows[0].pesoLiquido
       };
     } catch (error) {
       console.error(error);
