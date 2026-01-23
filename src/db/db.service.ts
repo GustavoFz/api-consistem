@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import * as mysql from 'mysql2/promise';
+// import * as mysql from 'mysql2/promise';
 import * as odbc from 'odbc';
 
 @Injectable()
@@ -66,18 +66,18 @@ export class DbService {
     }
   }
 
-  async mysql(query, values) {
-    const connection = await mysql.createConnection(this.dbConfig);
-    await connection.query(query, values);
-    connection.end();
-  }
+  // async mysql(query, values) {
+  //   const connection = await mysql.createConnection(this.dbConfig);
+  //   await connection.query(query, values);
+  //   connection.end();
+  // }
 
-  async mysqlSelect(query) {
-    const connection = await mysql.createConnection(this.dbConfig);
-    const [results]: mysql.RowDataPacket[] | any =
-      await connection.query(query);
-    connection.end();
+  // async mysqlSelect(query) {
+  //   const connection = await mysql.createConnection(this.dbConfig);
+  //   const [results]: mysql.RowDataPacket[] | any =
+  //     await connection.query(query);
+  //   connection.end();
 
-    return results;
-  }
+  //   return results;
+  // }
 }
