@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { DbService } from '../db/db.service';
 import { ProductEntity } from './entities/product.entity';
+import { MissingCodesResponseEntity } from './entities/missing-codes.entity';
 
 @Injectable()
 export class ProductsService {
@@ -56,6 +57,52 @@ export class ProductsService {
         throw error;
       }
 
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async findMissingCodes(): Promise<MissingCodesResponseEntity> {
+    try {
+      const maxCodeResult = (await this.db.cache(
+        `SELECT MAX(codigo) as lastCode FROM Cgi.Item`,
+      )) as Array<{ lastCode: number }>;
+
+      if (!maxCodeResult.length || !maxCodeResult[0].lastCode) {
+        return {
+          lastCode: 0,
+          missingCodes: [],
+          totalMissing: 0,
+        };
+      }
+
+      const lastCode = Number(maxCodeResult[0].lastCode);
+      console.log('Último código encontrado:', lastCode, 'tipo:', typeof lastCode);
+
+      const existingCodesResult = (await this.db.cache(
+        `SELECT DISTINCT codigo FROM Cgi.Item WHERE codigo IS NOT NULL AND codigo <= ${lastCode} ORDER BY codigo`,
+      )) as Array<{ codigo: number }>;
+
+      console.log('Códigos existentes encontrados:', existingCodesResult.length);
+      console.log('Primeiros 10 códigos:', existingCodesResult.slice(0, 10));
+
+      const existingCodes = new Set(existingCodesResult.map(row => Number(row.codigo)));
+      const missingCodes: number[] = [];
+
+      for (let i = 1; i <= lastCode; i++) {
+        if (!existingCodes.has(i)) {
+          missingCodes.push(i);
+        }
+      }
+
+      console.log('Total de códigos faltantes:', missingCodes.length);
+
+      return {
+        lastCode,
+        missingCodes,
+        totalMissing: missingCodes.length,
+      };
+    } catch (error) {
+      console.error(error);
       throw new InternalServerErrorException();
     }
   }

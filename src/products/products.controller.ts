@@ -12,6 +12,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductEntity } from './entities/product.entity';
+import { MissingCodesResponseEntity } from './entities/missing-codes.entity';
 import { ProductsService } from './products.service';
 
 @ApiTags('Products')
@@ -26,6 +27,12 @@ export class ProductsController {
     @Query('companyId', ParseIntPipe) companyId: number,
   ): Promise<ProductEntity[]> {
     return this.productsService.findAll(companyId);
+  }
+
+  @Get('missing-codes')
+  @ApiResponse({ status: 200, type: MissingCodesResponseEntity })
+  async getMissingCodes(): Promise<MissingCodesResponseEntity> {
+    return this.productsService.findMissingCodes();
   }
 
   @Get(':codItem')
