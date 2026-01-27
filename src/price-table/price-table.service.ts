@@ -4,9 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DbService } from '../db/db.service';
+import { PriceTableProductWithWeightEntity } from './entities/price-table-product-with-weight.entity';
 import { PriceTableProductEntity } from './entities/price-table-product.entity';
 import { PriceTableEntity } from './entities/price-table.entity';
-import { PriceTableProductWithWeightEntity } from './entities/price-table-product-with-weight.entity';
+
+
+export const roundPrice = (value: number): number => {
+  return Math.round((value + Number.EPSILON) * 100) / 100
+}
 
 @Injectable()
 export class PriceTableService {
@@ -146,7 +151,7 @@ export class PriceTableService {
     price: number,
   ): Promise<PriceTableProductEntity> {
     try {
-      const priceScaled = price * 100000;
+      const priceScaled = roundPrice(price * 100000);
       await this.db.cache(
         // Corrigir - Criar nova rota para INSERT OR UPDATE e manter a rota atual para UPDATE
         // `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`,
@@ -171,7 +176,9 @@ export class PriceTableService {
   ): Promise<PriceTableProductEntity[]> {
     try {
       const queries = updates.map(({ productId, price }) => {
-        const priceScaled = price * 100000;
+
+        const priceScaled = roundPrice(price * 100000);
+        console.log(productId, price, priceScaled);
         // Corrigir - Criar nova rota para INSERT OR UPDATE e manter a rota atual para UPDATE
         // return `UPDATE Ped.TabelaPrecoItem SET precoTabela=${priceScaled} WHERE codProduto=${productId} AND codTabela=${priceTableId} AND codEmpresa=${companyId}`;
         return `INSERT OR UPDATE INTO Ped.TabelaPrecoItem (codEmpresa, codTabela, codProduto, codFaixa, precoTabela, GERINF) VALUES (${companyId}, ${priceTableId}, ${productId}, 1, ${priceScaled}, 1)`;
