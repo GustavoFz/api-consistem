@@ -25,7 +25,7 @@ RUN npm install
 RUN npm run build
 
 # Expose the port on which the app will run
-EXPOSE 3000
+EXPOSE 3311
 
 # Start the server using the production build
 CMD ["npm", "run", "start:prod"]
