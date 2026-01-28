@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DbService } from '../db/db.service';
-import { ProductEntity } from './entities/product.entity';
 import { MissingCodesResponseEntity } from './entities/missing-codes.entity';
+import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-  constructor(private db: DbService) {}
+  constructor(private db: DbService) { }
 
   async findAll(companyId: number): Promise<ProductEntity[]> {
     try {
@@ -76,14 +76,10 @@ export class ProductsService {
       }
 
       const lastCode = Number(maxCodeResult[0].lastCode);
-      console.log('Último código encontrado:', lastCode, 'tipo:', typeof lastCode);
 
       const existingCodesResult = (await this.db.cache(
         `SELECT DISTINCT codigo FROM Cgi.Item WHERE codigo IS NOT NULL AND codigo <= ${lastCode} ORDER BY codigo`,
       )) as Array<{ codigo: number }>;
-
-      console.log('Códigos existentes encontrados:', existingCodesResult.length);
-      console.log('Primeiros 10 códigos:', existingCodesResult.slice(0, 10));
 
       const existingCodes = new Set(existingCodesResult.map(row => Number(row.codigo)));
       const missingCodes: number[] = [];
@@ -93,8 +89,6 @@ export class ProductsService {
           missingCodes.push(i);
         }
       }
-
-      console.log('Total de códigos faltantes:', missingCodes.length);
 
       return {
         lastCode,
